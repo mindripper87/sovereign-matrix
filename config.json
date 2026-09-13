@@ -1,0 +1,37 @@
+{
+  "system_name": "Sovereign Matrix Control",
+  "version": "1.0.0",
+  "environment": "production",
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "protocol": "http"
+  },
+  "github": {
+    "repository": "mindripper87/sovereign-matrix",
+    "branch": "main",
+    "raw_url": "https://raw.githubusercontent.com/mindripper87/sovereign-matrix/main"
+  },
+  "ai_model": {
+    "name": "sovereign-v1",
+    "type": "neural_kernel",
+    "endpoints": [
+      "https://api.openai.com/v1/chat/completions",
+      "https://api.anthropic.com/v1/messages",
+      "http://localhost:8000/api/telemetry"
+    ]
+  },
+  "telemetry": {
+    "enabled": true,
+    "update_interval_seconds": 15,
+    "log_level": "info"
+  },
+  "security": {
+    "cors_enabled": true,
+    "allowed_origins": ["*"],
+    "rate_limit": {
+      "enabled": true,
+      "requests_per_minute": 60
+    }
+  }
+}

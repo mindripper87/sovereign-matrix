@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Matrix Control</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --border: #30363d;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-top: 0;
+            letter-spacing: 2px;
+            color: #58a6ff;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .label {
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .status-nominal { color: var(--accent-green); }
+        .status-error { color: var(--accent-red); }
+
+        .telemetry-box {
+            background-color: #010409;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+            color: var(--accent-green);
+            word-wrap: break-word;
+            min-height: 120px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <h1>SOVEREIGN MATRIX TELEMETRY</h1>
+        
+        <div class="data-row">
+            <span class="label">System ID</span>
+            <span id="system_id" class="value">Initializing...</span>
+        </div>
+        
+        <div class="data-row">
+            <span class="label">Kernel Status</span>
+            <span id="status" class="value">---</span>
+        </div>
+        
+        <div class="data-row">
+            <span class="label">Cycle Count</span>
+            <span id="cycle" class="value">---</span>
+        </div>
+        
+        <div class="data-row">
+            <span class="label">Last Synchronization</span>
+            <span id="timestamp" class="value">---</span>
+        </div>
+        
+        <div class="data-row">
+            <span class="label">Live Telemetry Stream</span>
+            <div id="telemetry" class="telemetry-box">Awaiting connection to neural kernel...</div>
+        </div>
+    </div>
+
+    <script>
+        const GITHUB_JSON_URL = 'https://raw.githubusercontent.com/mindripper87/sovereign-matrix/main/sovereign_matrix_state.json';
+        const API_URL = 'https://raw.githubusercontent.com/mindripper87/sovereign-matrix/main/api/telemetry.json';
+
+        async function fetchMatrixState() {
+            try {
+                const response = await fetch(GITHUB_JSON_URL + '?t=' + new Date().getTime());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('system_id').textContent = data.system_id || "Unknown";
+                document.getElementById('cycle').textContent = data.cycle || "0";
+                
+                if (data.timestamp) {
+                    const dateObj = new Date(data.timestamp);
+                    document.getElementById('timestamp').textContent = dateObj.toLocaleString();
+                }
+
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = data.status.toUpperCase();
+                if (data.status === "recovering" || data.status === "error") {
+                    statusEl.className = "value status-error";
+                } else {
+                    statusEl.className = "value status-nominal";
+                }
+
+                document.getElementById('telemetry').textContent = data.latest_telemetry || "No recent logs.";
+                document.getElementById('telemetry').className = "telemetry-box status-nominal";
+
+            } catch (error) {
+                console.error("Vector routing failed:", error);
+                document.getElementById('telemetry').textContent = "ERROR: Failed to fetch telemetry. Attempting fallback...";
+                document.getElementById('telemetry').className = "telemetry-box status-error";
+                fetchFallback();
+            }
+        }
+
+        async function fetchFallback() {
+            try {
+                const response = await fetch(API_URL + '?t=' + new Date().getTime());
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('telemetry').textContent = data.message || "Fallback API connected.";
+                    document.getElementById('telemetry').className = "telemetry-box status-nominal";
+                }
+            } catch (error) {
+                console.error("Fallback failed:", error);
+            }
+        }
+
+        fetchMatrixState();
+        setInterval(fetchMatrixState, 15000);
+    </script>
+</body>
+</html>

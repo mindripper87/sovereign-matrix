@@ -1,0 +1,26 @@
+{
+  "name": "sovereign-matrix",
+  "version": "1.0.0",
+  "description": "AI-powered telemetry dashboard and neural kernel integration platform",
+  "main": "server.py",
+  "scripts": {
+    "start": "python3 server.py",
+    "dev": "python3 server.py",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "keywords": [
+    "ai",
+    "telemetry",
+    "neural",
+    "kernel",
+    "dashboard",
+    "monitoring"
+  ],
+  "author": "mindripper87",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mindripper87/sovereign-matrix"
+  },
+  "homepage": "https://github.com/mindripper87/sovereign-matrix#readme"
+}

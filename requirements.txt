@@ -1,0 +1,10 @@
+# Sovereign Matrix - Python Dependencies
+# Minimal requirements - uses standard library for core functionality
+
+# For enhanced features (optional):
+# requests>=2.31.0
+# flask>=3.0.0
+# flask-cors>=4.0.0
+# python-dotenv>=1.0.0
+# openai>=1.0.0
+# anthropic>=0.7.0
